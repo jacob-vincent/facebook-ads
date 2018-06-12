@@ -3,25 +3,18 @@ import numpy as np
 import os
 from datetime import datetime as dt
 
-<<<<<<< HEAD
-os.getcwd()
-data_df = pd.read_csv('/Users/jvincen7/Downloads/FacebookAds.csv')
-data_df.head()
-data_df.shape
-
-data_df['Age'].unique()
-data_df['CreationDate'][0][:-4]
-type(data_df['CreationDate'][0])
-print(dt.strptime('06/10/15 02:59:53 AM', "%m/%d/%y %I:%M:%S %p"))
-
-print(dt.strptime(data_df['CreationDate'][0][:-4],"%m/%d/%y %I:%M:%S %p"))
-=======
 #Read in data
 cwd=os.getcwd()
-os.chdir(cwd+'/facebookads/data')
+os.chdir(cwd+'/data')
 
 data_df = pd.read_csv('parsed_data.csv')
 data_df.head()
+
+new_names = {}
+for item in data_df.columns:
+    new_names[item]=item.lower()
+
+data_df.rename(columns=new_names,inplace=True)
 
 print(data_df['creationdate'][0])
 print(dt.strptime(data_df['creationdate'][0][:-4], '%m/%d/%y %I:%M:%S %p'))
@@ -47,4 +40,3 @@ for item in data_df['creationdate']:
 
 data_df['date_time'] = data_df['creationdate'].map(convert_time)
 data_df.head()
->>>>>>> ed656071608b6b43f7c67387084c6e0d7f252fb2
