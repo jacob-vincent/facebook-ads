@@ -8,7 +8,7 @@ cwd=os.getcwd()
 os.chdir(cwd+'/data')
 
 data_df = pd.read_csv('parsed_data.csv')
-data_df.head()
+# data_df.head()
 
 new_names = {}
 for item in data_df.columns:
@@ -39,4 +39,17 @@ for item in data_df['creationdate']:
         data_df['creationdate'] = data_df['creationdate']
 
 data_df['date_time'] = data_df['creationdate'].map(convert_time)
-data_df.head()
+# data_df.head()
+
+# Determine amount of missing data in each columns
+# If more than 50% of a columns entires are NaN, then we drop that column
+for item in data_df.columns:
+    nulls = data_df[item].isnull().sum()
+    missing = round(nulls*1.0/data_df.shape[0]*100,2)
+    if missing > 10:
+        print("{} has {} null values ({}%)".format(item,nulls,missing))
+    if missing > 50:
+        data_df = data_df.drop(item, axis=1)
+data_df.shape
+for item in range(0,5):
+    print(data_df['adtext'][item])
