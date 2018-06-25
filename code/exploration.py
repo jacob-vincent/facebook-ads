@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import nltk as nltk
 import os
 from datetime import datetime as dt
 
@@ -48,8 +49,28 @@ for item in data_df.columns:
     missing = round(nulls*1.0/data_df.shape[0]*100,2)
     if missing > 10:
         print("{} has {} null values ({}%)".format(item,nulls,missing))
-    if missing > 50:
-        data_df = data_df.drop(item, axis=1)
+    # if missing > 50:
+        # data_df = data_df.drop(item, axis=1)
 data_df.shape
-for item in range(0,5):
-    print(data_df['adtext'][item])
+
+data_df['adtext'].head()
+
+def text_cleaner(text):
+    # print(type(text))
+    new_words = []
+    stop_words = nltk.corpus.stopwords.words('english')
+    if type(text) == str:
+        # print('Cleaning...')
+        for item in nltk.word_tokenize(text):
+            if item not in stop_words:
+                new_words.append(item)
+        return new_words
+    else:
+        # print('Not a string')
+        return np.nan
+
+data_df['clean_text'] = data_df['adtext'].map(text_cleaner)
+data_df['clean_text'].head()
+print(data_df['adtext'][0])
+type(data_df['adtext'][0])
+text_cleaner(data_df['adtext'][0])
