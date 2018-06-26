@@ -53,8 +53,6 @@ for item in data_df.columns:
         # data_df = data_df.drop(item, axis=1)
 data_df.shape
 
-data_df['adtext'].head()
-
 def text_cleaner(text):
     # print(type(text))
     new_words = []
@@ -71,6 +69,3 @@ def text_cleaner(text):
 
 data_df['clean_text'] = data_df['adtext'].map(text_cleaner)
 data_df['clean_text'].head()
-print(data_df['adtext'][0])
-type(data_df['adtext'][0])
-text_cleaner(data_df['adtext'][0])
