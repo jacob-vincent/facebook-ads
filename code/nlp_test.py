@@ -9,7 +9,8 @@ html = response.read()
 soup = BeautifulSoup(html, 'html5lib')
 text = soup.get_text(strip=True)
 # print(text)
-tokens = [t for t in text.split()]
+from nltk.tokenize import word_tokenize
+tokens = word_tokenize(text)
 print(tokens)
 from nltk.corpus import stopwords
 clean_tokens = tokens[:]
