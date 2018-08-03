@@ -3,6 +3,7 @@ import numpy as np
 import nltk as nltk
 import os
 from datetime import datetime as dt
+import collections
 
 #Read in data
 # os.chdir('../data')
@@ -59,11 +60,12 @@ data_df.drop(['creationdate','enddate'],axis=1,inplace=True)
 for item in data_df.columns:
     nulls = data_df[item].isnull().sum()
     missing = round(nulls*1.0/data_df.shape[0]*100,2)
-    if missing > 10:
-        print("{} has {} null values ({}%)".format(item,nulls,missing))
+    #if missing > 10:
+        #print("{} has {} null values ({}%)".format(item,nulls,missing))
     if missing > 2/3*100:
         data_df = data_df.drop(item, axis=1)
-
+        print('Dropped {} due to incompleteness ({}% missing)'.format(item.upper(),missing))
+print('\n ------------ \n')
 #Function to tokenize the ad text and remove punctuation
 def text_cleaner(text):
     # print(type(text))
@@ -81,7 +83,7 @@ def text_cleaner(text):
 
 #Clean the ad text entries and drop the original column
 data_df['clean_text'] = data_df['adtext'].map(text_cleaner)
-data_df.drop('adtext',axis=1,inplace=True)
+# data_df.drop('adtext',axis=1,inplace=True)
 
 #Function to grab the lower bound of the age range
 def min_age(cell):
@@ -100,5 +102,55 @@ data_df['age_upper'] = pd.to_numeric(data_df['age'].map(max_age))
 data_df.drop('age',axis=1,inplace=True)
 
 print('data_df currently has '+str(data_df.shape[0])+' rows and '+str(data_df.shape[1])+' columns')
+print('\n ------------ \n')
 
-print(data_df.head())
+def term_frequency(col):
+    token = nltk.word_tokenize(col)
+    text = []
+    for item in token:
+        if item.isalnum():
+            text.append(item)
+        else:
+            continue
+    freqs = collections.Counter(text)
+    return freqs
+
+# term_frequency(data_df['adtext'][321])
+
+
+#Concatenate list of all ad texts
+texts = []
+for item in data_df['adtext']:
+    texts.append(item)
+
+
+#Tokenize the corpus of texts and grab word frequencies
+texts_tokens = []
+for i in texts:
+    if type(i)==str:
+        result = nltk.word_tokenize(i)
+        for r in result:
+            if r.isalnum():
+                texts_tokens.append(r)
+    else:
+        continue
+
+texts_tokens_freqs = dict(collections.Counter(texts_tokens))
+
+
+sorted_text_token_freqs = sorted(texts_tokens_freqs.items(), key=lambda kv: kv[1],reverse=True)
+
+idf = np.empty(len(sorted_text_token_freqs),dtype=np.float)
+for i in range(len(idf)):
+    idf[i]=data_df.shape[0]/(np.log(sorted_text_token_freqs[i][1]))#this is wrong. should be number of documents containing word i
+# idf[0:10]
+
+sorted_dict_freqs = dict(sorted_text_token_freqs)
+
+term_list = list(zip(sorted_dict_freqs.keys(),sorted_dict_freqs.values(),idf))
+
+
+term_tfidf = list()
+for item in term_list:
+    term_tfidf.append([item[0],item[1]*(data_df.shape[0]/np.log(item[2]])))
+print(term_tfidf[0:5])
